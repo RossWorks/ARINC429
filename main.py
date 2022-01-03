@@ -6,9 +6,16 @@ def bin2logical():
     Check = A429Frame.Decode(TxtArincFrame.get())
     if Check.Code != 0:
         messagebox.showerror(title=Check.title,message=Check.message)
-    else: 
-        messagebox.showinfo(message=A429Frame.GetLogicalData())
-
+        return 
+    LogicalText=A429Frame.GetLogicalData()
+    TxtLabel.delete(0,'end')
+    TxtLabel.insert(0,LogicalText["LABEL"])
+    TxtSSM.delete(0,'end')
+    TxtSSM.insert(0,LogicalText["SSM"])
+    TxtSDI.delete(0,'end')
+    TxtSDI.insert(0,LogicalText["SDI"])
+    TxtPayload.delete(0,'end')
+    TxtPayload.insert(0,LogicalText["PAYLOAD"])
 home = tkinter.Tk()
 home.title("ARINC 429 Translator")
 
