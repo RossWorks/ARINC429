@@ -1,6 +1,6 @@
 class Frame:
 
-    __SSM_Table=("Failure Warining",
+    __SSM_Table=("Failure Warning",
                  "Functional Test",
                  "Not Computed Data",
                  "Normal Operation")
@@ -35,6 +35,8 @@ class Frame:
         self.__LogicalFrame["SSM"]=self.__SSM_Table[int(SSM,2)]
         SDI = Frame[-11:-9]
         self.__LogicalFrame["SDI"]=SDI
+        PAYLOAD=Frame[3:-11]
+        self.__LogicalFrame["PAYLOAD"]=PAYLOAD
         return Exception(0)
 
     def GetLogicalData(self) -> dict:
