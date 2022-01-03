@@ -43,7 +43,62 @@ class Frame:
         return self.__LogicalFrame
 
 class ICD:
-    pass
+    class DataField:
+        Name     : str
+        Encoding : str
+        MSB      : int
+        LSB      : int
+        SDI      : str
+
+        def __init__(self,
+                     Name,
+                     Encoding,
+                     MSB,
+                     LSB,
+                     SDI) -> None:
+            self.Name     = Name
+            self.Encoding = Encoding
+            self.MSB      = MSB
+            self.LSB      = LSB
+            self.SDI      = SDI
+
+    __ChannelList = []
+    __Data        = {}
+
+    def __init__(self) -> None:
+        pass
+
+    def GetChannelList(self) -> list:
+        return self.__ChannelList 
+
+    def Load(self,
+             FileDir : str) -> Exception:
+        TmpLine = [str]
+        try:
+            ICDfile=open(FileDir)
+        except:
+            return Exception(4)
+        for line in ICDfile:
+            if line[0] == '#':
+                continue
+            TmpLine=str.split(line,sep=';')
+            if len(TmpLine) <= 1:
+                return Exception(5)
+            Channel = TmpLine[1]
+            Label   = TmpLine[2]
+            Key     = Channel + ';' + Label
+            if Channel not in self.__ChannelList:
+                self.__ChannelList.append(Channel)
+            TmpField = self.DataField(Name     = TmpLine[0],
+                                      Encoding = TmpLine[3],
+                                      MSB      = TmpLine[4],
+                                      LSB      = TmpLine[5],
+                                      SDI      = TmpLine[6])
+            if Key not in self.__Data:
+                self.__Data[Key] = list()
+            self.__Data[Key].append(TmpField)
+        ICDfile.close()
+        return Exception(0)
 
 class Exception:
     title   : str
@@ -64,10 +119,16 @@ class Exception:
         elif Code == 3:
             self.title   = "ARINC Frame"
             self.message = "ARINC Frame must have odd parity\nException code: " + str(Code)
+        elif Code == 4:
+            self.title   = "ICD file"
+            self.message = "Unable to open ICD file\nException code : " + str(Code)
+        elif Code == 5:
+            self.title   = "ICD file"
+            self.message = "Invalid ICD file\nException code : " + str(Code)
         else:
             self.title   = "Unknown exception"
             self.message = "Unknown exception code is " + str(Code)
 
 if __name__ == "__main__":
     print("ARINC429 library by RossWorks.")
-    print("Please refer to documentation to lern how to use this library")
+    print("Please refer to documentation to learn how to use this library")
