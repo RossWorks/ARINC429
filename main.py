@@ -1,5 +1,7 @@
 import tkinter, ARINC429
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
+
+IcdTable = ARINC429.ICD()
 
 def bin2logical():
     A429Frame=ARINC429.Frame()
@@ -18,7 +20,11 @@ def bin2logical():
     TxtPayload.insert(0,LogicalText["PAYLOAD"])
 
 def LoadICD():
-    pass
+    FileName = filedialog.askopenfilename()
+    ErrorCode = IcdTable.Load(FileDir=FileName)
+    if ErrorCode.Code != 0:
+        messagebox.showerror(title=ErrorCode.title,
+                             message= ErrorCode.message)
 
 home = tkinter.Tk()
 home.title("ARINC 429 Translator")
@@ -34,23 +40,30 @@ CmdBin2Logical.grid(row=2,column=0)
 CmdLoadICD=ttk.Button(master=home,text="Load ICD",command=LoadICD)
 CmdLoadICD.grid(row=2,column=1)
 
+LblChannel=ttk.Label(master=home,text="Channel\t=> ")
+LblChannel.grid(row=3,column=0,sticky='w')
+TxtChannel=ttk.Combobox(master=home,justify='center',
+                        values=("no channels avaiable",),
+                        state='readonly')
+TxtChannel.grid(row=3,column=1)
+
 LblLabel=ttk.Label(master=home,text="Label\t=> ")
-LblLabel.grid(row=3,column=0,sticky='w')
+LblLabel.grid(row=4,column=0,sticky='w')
 TxtLabel=ttk.Entry(master=home,justify='center')
-TxtLabel.grid(row=3,column=1)
+TxtLabel.grid(row=4,column=1)
 
 LblSSM=ttk.Label(master=home,text="SSM\t=> ")
-LblSSM.grid(row=4,column=0,sticky='w')
+LblSSM.grid(row=5,column=0,sticky='w')
 TxtSSM=ttk.Entry(master=home,justify='center')
-TxtSSM.grid(row=4,column=1)
+TxtSSM.grid(row=5,column=1)
 
 LblSDI=ttk.Label(master=home,text="SDI\t=> ")
-LblSDI.grid(row=5,column=0,sticky='w')
+LblSDI.grid(row=6,column=0,sticky='w')
 TxtSDI=ttk.Entry(master=home,justify='center')
-TxtSDI.grid(row=5,column=1)
+TxtSDI.grid(row=6,column=1)
 
 LblPayload=ttk.Label(master=home,text="Payload\t=> ")
-LblPayload.grid(row=6,column=0,sticky='w')
+LblPayload.grid(row=7,column=0,sticky='w')
 TxtPayload=ttk.Entry(master=home,justify='center')
-TxtPayload.grid(row=6,column=1)
+TxtPayload.grid(row=7,column=1)
 home.mainloop()
