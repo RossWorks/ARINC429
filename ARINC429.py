@@ -109,25 +109,26 @@ class Exception:
         self.Code = Code
         if Code == 0:
             self.title   = "No errors"
-            self.message = "Execution exited normally\nException code: " + str(Code)
+            self.message = "Execution exited normally"
         elif Code == 1:
             self.title   = "ARINC Frame"
-            self.message = "ARINC Frame is not 32 bits long\nException code: " + str(Code)
+            self.message = "ARINC Frame is not 32 bits long"
         elif Code == 2:
             self.title   = "ARINC Frame"
-            self.message = "ARINC Frame is not binary\nException code: " + str(Code)
+            self.message = "ARINC Frame is not binary"
         elif Code == 3:
             self.title   = "ARINC Frame"
-            self.message = "ARINC Frame must have odd parity\nException code: " + str(Code)
+            self.message = "ARINC Frame must have odd parity"
         elif Code == 4:
             self.title   = "ICD file"
-            self.message = "Unable to open ICD file\nException code : " + str(Code)
+            self.message = "Unable to open ICD file"
         elif Code == 5:
             self.title   = "ICD file"
-            self.message = "Invalid ICD file\nException code : " + str(Code)
+            self.message = "Invalid ICD file"
         else:
             self.title   = "Unknown exception"
-            self.message = "Unknown exception code is " + str(Code)
+            self.message = "Unknown exception"
+        self.message += "\nError code: " + str(Code)
 
 if __name__ == "__main__":
     print("ARINC429 library by RossWorks.")
