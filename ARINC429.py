@@ -116,8 +116,8 @@ class ICD:
                                       LSB      = TmpLine[5],
                                       SDI      = TmpLine[6])
             if Key not in self.__Content:
-                self.Content[Key] = list()
-            self.Content[Key].append(TmpField)
+                self.__Content[Key] = list()
+            self.__Content[Key].append(TmpField)
         ICDfile.close()
         self.Valid = True
         return Exception(0)
