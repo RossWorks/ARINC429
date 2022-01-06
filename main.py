@@ -5,9 +5,12 @@ IcdTable = ARINC429.ICD()
 
 def bin2logical():
     A429Frame=ARINC429.Frame()
-    Check = A429Frame.Decode(TxtArincFrame.get())
+    Check = A429Frame.Decode(Frame   = TxtArincFrame.get(),
+                             ICD     = IcdTable,
+                             Channel = CmbChannel.get())
     if Check.Code != 0:
-        messagebox.showerror(title=Check.title,message=Check.message)
+        messagebox.showerror(title   = Check.title,
+                             message = Check.message)
         return 
     LogicalText=A429Frame.GetLogicalData()
     TxtLabel.delete(0,'end')
@@ -25,6 +28,8 @@ def LoadICD():
     if ErrorCode.Code != 0:
         messagebox.showerror(title=ErrorCode.title,
                              message= ErrorCode.message)
+        return
+    CmbChannel.config(values=IcdTable.GetChannelList())
 
 home = tkinter.Tk()
 home.title("ARINC 429 Translator")
@@ -42,10 +47,10 @@ CmdLoadICD.grid(row=2,column=1)
 
 LblChannel=ttk.Label(master=home,text="Channel\t=> ")
 LblChannel.grid(row=3,column=0,sticky='w')
-TxtChannel=ttk.Combobox(master=home,justify='center',
+CmbChannel=ttk.Combobox(master=home,justify='center',
                         values=("no channels avaiable",),
                         state='readonly')
-TxtChannel.grid(row=3,column=1)
+CmbChannel.grid(row=3,column=1)
 
 LblLabel=ttk.Label(master=home,text="Label\t=> ")
 LblLabel.grid(row=4,column=0,sticky='w')

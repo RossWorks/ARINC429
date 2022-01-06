@@ -23,24 +23,42 @@ class Frame:
         return 0
 
     def Decode(self,
-               Frame) -> Exception:
-        Label : str
+               Frame,
+               ICD,
+               Channel = "") -> Exception:
+        Label  : str
+        Fields : list
         FirstCheck = self.__CheckIntegrity(Frame)
         if FirstCheck != 0:
             self.__LogicalFrame.clear()
             return Exception(FirstCheck)
-        Label = oct(int(Frame[-8:-1],2))
+        Tmpstr=Frame[24:32]
+        Label = oct(int(Tmpstr[::-1],2))
         self.__LogicalFrame["LABEL"]=Label
         SSM = Frame[1:3]
         self.__LogicalFrame["SSM"]=self.__SSM_Table[int(SSM,2)]
-        SDI = Frame[-11:-9]
+        SDI = Frame[22:24]
         self.__LogicalFrame["SDI"]=SDI
-        PAYLOAD=Frame[3:-11]
+        PAYLOAD=Frame[3:22]
         self.__LogicalFrame["PAYLOAD"]=PAYLOAD
-        return Exception(0)
+        if not ICD.Valid:
+            return Exception(0)
+        if Channel == "":
+            return Exception(6)
+        Key = Channel + ';' + Label
+        if not ICD.FindKey(Key):
+            return Exception(7)
+        Fields = ICD.__Content[Key]
+        print("ICD extracted")
 
     def GetLogicalData(self) -> dict:
         return self.__LogicalFrame
+
+    def __AttachSDI(self) -> str:
+        pass
+
+    def __ParsePayload(self) -> dict:
+        pass
 
 class ICD:
     class DataField:
@@ -63,7 +81,8 @@ class ICD:
             self.SDI      = SDI
 
     __ChannelList = []
-    __Data        = {}
+    __Content     = {}
+    Valid  : bool = False
 
     def __init__(self) -> None:
         pass
@@ -74,6 +93,7 @@ class ICD:
     def Load(self,
              FileDir : str) -> Exception:
         TmpLine = [str]
+        self.Valid   = False
         try:
             ICDfile=open(FileDir)
         except:
@@ -94,11 +114,19 @@ class ICD:
                                       MSB      = TmpLine[4],
                                       LSB      = TmpLine[5],
                                       SDI      = TmpLine[6])
-            if Key not in self.__Data:
-                self.__Data[Key] = list()
-            self.__Data[Key].append(TmpField)
+            if Key not in self.__Content:
+                self.__Content[Key] = list()
+            self.__Content[Key].append(TmpField)
         ICDfile.close()
+        self.Valid = True
         return Exception(0)
+
+    def FindKey(self,
+                Key = "") -> bool:
+        if Key in self.__Content:
+            return True
+        else:
+            return False
 
 class Exception:
     title   : str
@@ -107,7 +135,7 @@ class Exception:
 
     def __init__(self,Code : int = 0) -> None:
         self.Code = Code
-        if Code == 0:
+        if   Code == 0:
             self.title   = "No errors"
             self.message = "Execution exited normally"
         elif Code == 1:
@@ -125,10 +153,17 @@ class Exception:
         elif Code == 5:
             self.title   = "ICD file"
             self.message = "Invalid ICD file"
+        elif Code == 6:
+            self.title   = "ARINC Channel"
+            self.message = "Provided invalid ARINC Channel"
+        elif Code == 7:
+            self.title   = "ARINC label"
+            self.message = "ARINC label not found in ICD"
         else:
             self.title   = "Unknown exception"
             self.message = "Unknown exception"
-        self.message += "\nError code: " + str(Code)
+        if   Code != 0:
+            self.message += "\nError code: " + str(Code)
 
 if __name__ == "__main__":
     print("ARINC429 library by RossWorks.")
