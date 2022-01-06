@@ -31,7 +31,7 @@ def LoadICD():
         return
     CmbChannel.config(values=IcdTable.GetChannelList())
 
-home = tkinter.Tk()
+home = tkinter.Tk(className= "ARINC 429 translator")
 home.title("ARINC 429 Translator")
 
 LblArincFrame=ttk.Label(master=home,text="Arinc 429 frame",justify="center")
@@ -48,9 +48,10 @@ CmdLoadICD.grid(row=2,column=1)
 LblChannel=ttk.Label(master=home,text="Channel\t=> ")
 LblChannel.grid(row=3,column=0,sticky='w')
 CmbChannel=ttk.Combobox(master=home,justify='center',
-                        values=("no channels avaiable",),
+                        values=("No channels avaiable",),
                         state='readonly')
 CmbChannel.grid(row=3,column=1)
+CmbChannel.current(0)
 
 LblLabel=ttk.Label(master=home,text="Label\t=> ")
 LblLabel.grid(row=4,column=0,sticky='w')
