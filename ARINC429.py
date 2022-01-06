@@ -45,11 +45,12 @@ class Frame:
             return Exception(0)
         if Channel == "":
             return Exception(6)
-        Key = Channel + ';' + Label
+        Key = Channel + ';' + Label[2::]
         if not ICD.FindKey(Key):
             return Exception(7)
         Fields = ICD.__Content[Key]
         print("ICD extracted")
+        return Exception(0)
 
     def GetLogicalData(self) -> dict:
         return self.__LogicalFrame
@@ -115,15 +116,15 @@ class ICD:
                                       LSB      = TmpLine[5],
                                       SDI      = TmpLine[6])
             if Key not in self.__Content:
-                self.__Content[Key] = list()
-            self.__Content[Key].append(TmpField)
+                self.Content[Key] = list()
+            self.Content[Key].append(TmpField)
         ICDfile.close()
         self.Valid = True
         return Exception(0)
 
     def FindKey(self,
                 Key = "") -> bool:
-        if Key in self.__Content:
+        if Key in self.Content:
             return True
         else:
             return False
