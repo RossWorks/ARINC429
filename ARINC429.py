@@ -1,9 +1,9 @@
 class Frame:
 
     _SSM_Table=("Failure Warning",
-                 "Functional Test",
-                 "Not Computed Data",
-                 "Normal Operation")
+                "Functional Test",
+                "Not Computed Data",
+                "Normal Operation")
 
     _LogicalFrame : dict = {}
     _BinaryWord   : str
@@ -24,7 +24,7 @@ class Frame:
 
     def Decode(self,
                Frame,
-               ICD,
+               ICD = None,
                Channel : str = "") -> Exception:
         Label  : str
         Fields : list
@@ -41,6 +41,8 @@ class Frame:
         self._LogicalFrame["SDI"]=SDI
         PAYLOAD=Frame[3:22]
         self._LogicalFrame["PAYLOAD"]=PAYLOAD
+        if (ICD == None):
+            return Exception(0)
         if not ICD.Valid:
             return Exception(0)
         if Channel not in ICD._ChannelList:
@@ -134,6 +136,9 @@ class ICD:
     def ExtractKey(self,
                    Key : str) -> list:
         return self._Content[Key]
+
+    def Invalidate(self):
+        self.Valid = False
 
 class Exception:
     title   : str
