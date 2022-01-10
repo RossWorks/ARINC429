@@ -53,6 +53,8 @@ class Frame:
         Fields = ICD._Content[Key]
         if Fields[0].SDI[0:2] == 'XX':
             self._AttachSDI()
+        FieldDict = self._ParsePayload(Fields)
+        self._LogicalFrame.update(FieldDict)
         return Exception(0)
 
     def GetLogicalData(self) -> dict:
@@ -62,8 +64,25 @@ class Frame:
         self._LogicalFrame["PAYLOAD"] += self._LogicalFrame["SDI"]
         self._LogicalFrame["SDI"] = "Extended label"
 
-    def _ParsePayload(self):
-        pass
+    def _ParsePayload(self,
+                      DataFields : list) -> dict:
+        FieldDict = dict()
+        for field in DataFields:
+            if field.Name[0:4] == "SSM_":
+                continue
+            if field.Encoding == "BNR":
+                FieldDict[field.Name] = self._DecodeBNR(MSB = field.MSB,
+                                                      LSB = field.LSB)
+        return FieldDict
+
+    def _DecodeBNR(self,
+                   MSB,
+                   LSB) -> str:
+        LogicalData = self._LogicalFrame["PAYLOAD"]
+        RightBound = 32 - int(MSB) - 3
+        LeftBound  = 32 - int(LSB) - 3 + 1
+        LogicalData = int(LogicalData[RightBound:LeftBound],base = 2)
+        return LogicalData
 
 class ICD:
     class DataField:
