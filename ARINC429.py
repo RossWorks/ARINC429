@@ -28,6 +28,7 @@ class Frame:
                Channel : str = "") -> Exception:
         Label  : str
         Fields : list
+        self._LogicalFrame.clear()
         FirstCheck = self._CheckIntegrity(Frame)
         if FirstCheck != 0:
             self._LogicalFrame = {}
@@ -82,7 +83,7 @@ class Frame:
         RightBound = 32 - int(MSB) - 3
         LeftBound  = 32 - int(LSB) - 3 + 1
         LogicalData = int(LogicalData[RightBound:LeftBound],base = 2)
-        return LogicalData
+        return str(LogicalData)
 
 class ICD:
     class DataField:
