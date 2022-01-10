@@ -51,7 +51,7 @@ class Frame:
         if not ICD.FindKey(Key):
             return Exception(7)
         Fields = ICD._Content[Key]
-        if Fields[0].SDI == 'XX':
+        if Fields[0].SDI[0:2] == 'XX':
             self._AttachSDI()
         return Exception(0)
 
