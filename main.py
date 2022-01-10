@@ -5,6 +5,7 @@ IcdTable = ARINC429.ICD()
 
 def bin2logical():
     A429Frame=ARINC429.Frame()
+    FullFields = str("")
     Check = A429Frame.Decode(Frame   = TxtArincFrame.get(),
                              ICD     = IcdTable,
                              Channel = CmbChannel.get())
@@ -21,6 +22,14 @@ def bin2logical():
     TxtSDI.insert(0,LogicalText["SDI"])
     TxtPayload.delete(0,'end')
     TxtPayload.insert(0,LogicalText["PAYLOAD"])
+    for entry in LogicalText:
+        if entry == "LABEL"   or \
+           entry == "PAYLOAD" or \
+           entry == "SSM"     or \
+           entry == "SDI"     :
+           continue
+        FullFields += entry +'\t=> ' + LogicalText[entry] +'\n'
+    LblFields.config(text=FullFields)
 
 def LoadICD():
     FileName = filedialog.askopenfilename()
@@ -74,4 +83,7 @@ LblPayload=ttk.Label(master=home,text="Payload\t=> ")
 LblPayload.grid(row=7,column=0,sticky='w')
 TxtPayload=ttk.Entry(master=home,justify='center',width=21)
 TxtPayload.grid(row=7,column=1,columnspan=2)
+
+LblFields=ttk.Label(master=home,text="Here to be fields")
+LblFields.grid(row=8,column=0,columnspan=3)
 home.mainloop()
