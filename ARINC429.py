@@ -79,10 +79,12 @@ class Frame:
     def _DecodeBNR(self,
                    MSB,
                    LSB) -> str:
-        LogicalData = self._LogicalFrame["PAYLOAD"]
-        RightBound = 32 - int(MSB) - 3
-        LeftBound  = 32 - int(LSB) - 3 + 1
-        LogicalData = int(LogicalData[RightBound:LeftBound],base = 2)
+        strPayload  = self._LogicalFrame["PAYLOAD"]
+        RightBound  = 32 - int(MSB) - 3
+        LeftBound   = 32 - int(LSB) - 3 + 1
+        SignBitVal  = -int(strPayload[0]) * pow(2, (len(strPayload) - 1))
+        OtherBits   = int(strPayload[RightBound+1:LeftBound],base = 2)
+        LogicalData = SignBitVal + OtherBits
         return str(LogicalData)
 
 class ICD:
