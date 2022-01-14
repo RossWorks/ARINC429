@@ -72,19 +72,29 @@ class Frame:
             if field.Name[0:4] == "SSM_":
                 continue
             if field.Encoding == "BNR":
-                FieldDict[field.Name] = self._DecodeBNR(MSB = field.MSB,
-                                                      LSB = field.LSB)
+                FieldDict[field.Name] = self._DecodeBNR(MSB      = field.MSB,
+                                                        LSB      = field.LSB,
+                                                        DataType = field.Type)
         return FieldDict
 
     def _DecodeBNR(self,
-                   MSB,
-                   LSB) -> str:
-        strPayload  = self._LogicalFrame["PAYLOAD"]
-        RightBound  = 32 - int(MSB) - 3
-        LeftBound   = 32 - int(LSB) - 3 + 1
-        SignBitVal  = -int(strPayload[0]) * pow(2, (len(strPayload) - 1))
-        OtherBits   = int(strPayload[RightBound+1:LeftBound],base = 2)
-        LogicalData = SignBitVal + OtherBits
+                   MSB : int,
+                   LSB : int,
+                   DataType : str) -> str:
+        payload     : str = self._LogicalFrame["PAYLOAD"]
+        RightBound  = 32 - MSB - 3
+        LeftBound   = 32 - LSB - 3 + 1
+        LogicalData : str = ""
+        if DataType == "INT": #signed integer 2's complement
+            SignBitVal  = -int(payload[RightBound])*pow(2,(len(payload)-1))
+            OtherBits   = int(payload[RightBound+1:LeftBound],base = 2)
+            LogicalData = SignBitVal + OtherBits
+        elif DataType == "UINT": #unsigned integer
+            LogicalData = int(payload[RightBound:LeftBound],base = 2)
+        elif DataType == "FLOAT": #floating point signed number
+            pass
+        else:
+            pass
         return str(LogicalData)
 
 class ICD:
@@ -94,28 +104,31 @@ class ICD:
         MSB      : int
         LSB      : int
         SDI      : str
+        Type     : str
 
         def __init__(self,
                      Name,
                      Encoding,
                      MSB,
                      LSB,
-                     SDI) -> None:
+                     SDI,
+                     Type) -> None:
             self.Name     = Name
             self.Encoding = Encoding
             self.MSB      = MSB
             self.LSB      = LSB
             self.SDI      = SDI
+            self.Type     = Type
 
-    _ChannelList = []
-    _Content     = {}
+    _ChannelList  = []
+    _Content      = {}
     Valid  : bool = False
 
     def __init__(self) -> None:
         pass
 
     def GetChannelList(self) -> list:
-        return self._ChannelList 
+        return self._ChannelList
 
     def Load(self,
              FileDir : str) -> Exception:
@@ -138,18 +151,20 @@ class ICD:
                 self._ChannelList.append(Channel)
             TmpField = self.DataField(Name     = TmpLine[0],
                                       Encoding = TmpLine[3],
-                                      MSB      = TmpLine[4],
-                                      LSB      = TmpLine[5],
-                                      SDI      = TmpLine[6])
+                                      MSB      = int(TmpLine[4]),
+                                      LSB      = int(TmpLine[5]),
+                                      Type     = TmpLine[6],
+                                      SDI      = TmpLine[7])
             if Key not in self._Content:
                 self._Content[Key] = list()
             self._Content[Key].append(TmpField)
         ICDfile.close()
+        self._ChannelList.sort()
         self.Valid = True
         return Exception(0)
 
     def FindKey(self,
-                Key = "") -> bool:
+                Key : str = "") -> bool:
         if Key in self._Content:
             return True
         else:
@@ -161,6 +176,8 @@ class ICD:
 
     def Invalidate(self):
         self.Valid = False
+        self._ChannelList.clear()
+        self._Content.clear()
 
 class Exception:
     title   : str

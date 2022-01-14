@@ -39,6 +39,12 @@ def LoadICD():
                              message= ErrorCode.message)
         return
     CmbChannel.config(values=IcdTable.GetChannelList())
+    CmbChannel.current(newindex=0)
+
+def ForgetICD():
+    IcdTable.Invalidate()
+    CmbChannel.config(values=("No channels available",))
+    CmbChannel.current(newindex=0)
 
 home = tkinter.Tk(className= "ARINC 429 translator")
 home.title("ARINC 429 Translator")
@@ -53,37 +59,37 @@ CmdBin2Logical=ttk.Button(master=home,text="Translate to logical",
 CmdBin2Logical.grid(row=2,column=0)
 CmdLoadICD=ttk.Button(master=home,text="Load ICD",command=LoadICD)
 CmdLoadICD.grid(row=2,column=1)
-CmdForgetICD=ttk.Button(master=home,text="Clear ICD")
+CmdForgetICD=ttk.Button(master=home,text="Clear ICD",command=ForgetICD)
 CmdForgetICD.grid(row=2,column=2)
 
 LblChannel=ttk.Label(master=home,text="Channel\t=> ")
 LblChannel.grid(row=3,column=0,sticky='w')
 CmbChannel=ttk.Combobox(master=home,justify='center',
-                        values=("No channels avaiable",),
+                        values=("No channels available",),
                         state='readonly',width=21)
-CmbChannel.grid(row=3,column=1,columnspan=2)
+CmbChannel.grid(row=3,column=1,columnspan=2,sticky='w')
 CmbChannel.current(0)
 
 LblLabel=ttk.Label(master=home,text="Label\t=> ")
 LblLabel.grid(row=4,column=0,sticky='w')
 TxtLabel=ttk.Entry(master=home,justify='center',width=21)
-TxtLabel.grid(row=4,column=1,columnspan=2)
+TxtLabel.grid(row=4,column=1,columnspan=2,sticky='w')
 
 LblSSM=ttk.Label(master=home,text="SSM\t=> ")
 LblSSM.grid(row=5,column=0,sticky='w')
 TxtSSM=ttk.Entry(master=home,justify='center',width=21)
-TxtSSM.grid(row=5,column=1,columnspan=2)
+TxtSSM.grid(row=5,column=1,columnspan=2,sticky='w')
 
 LblSDI=ttk.Label(master=home,text="SDI\t=> ")
 LblSDI.grid(row=6,column=0,sticky='w')
 TxtSDI=ttk.Entry(master=home,justify='center',width=21)
-TxtSDI.grid(row=6,column=1,columnspan=2)
+TxtSDI.grid(row=6,column=1,columnspan=2,sticky='w')
 
 LblPayload=ttk.Label(master=home,text="Payload\t=> ")
 LblPayload.grid(row=7,column=0,sticky='w')
 TxtPayload=ttk.Entry(master=home,justify='center',width=21)
-TxtPayload.grid(row=7,column=1,columnspan=2)
+TxtPayload.grid(row=7,column=1,columnspan=2,sticky='w')
 
-LblFields=ttk.Label(master=home,text="Here to be fields")
-LblFields.grid(row=8,column=0,columnspan=3)
+LblFields=ttk.Label(master=home,text="Logical field\t=> value")
+LblFields.grid(row=8,column=0,columnspan=3,sticky='w')
 home.mainloop()
