@@ -69,12 +69,14 @@ class Frame:
                       DataFields : list) -> dict:
         FieldDict = dict()
         for field in DataFields:
-            if field.Name[0:4] == "SSM_":
-                continue
             if field.Encoding == "BNR":
                 FieldDict[field.Name] = self._DecodeBNR(MSB      = field.MSB,
                                                         LSB      = field.LSB,
                                                         DataType = field.Type)
+            elif field.Encoding == "ENUM":
+                FieldDict[field.Name] = self._DecodeENUM(MSB      = field.MSB,
+                                                         LSB      = field.LSB,
+                                                         EnumVal  = field.Type)
         return FieldDict
 
     def _DecodeBNR(self,
@@ -96,6 +98,21 @@ class Frame:
         else:
             pass
         return str(LogicalData)
+
+    def _DecodeENUM(self,
+                    MSB : int,
+                    LSB : int,
+                    EnumVal : str) -> str:
+        payload     : str = self._LogicalFrame["PAYLOAD"]
+        RightBound  = 32 - MSB - 3
+        LeftBound   = 32 - LSB - 3 + 1
+        LogicalData : str = ""
+        EnumList = EnumVal.split(sep=',')
+        Selector = int(payload[RightBound:LeftBound],base = 2)
+        if Selector > len(EnumList):
+            return "ENUM OUT OF BOUND"
+        LogicalData = EnumList[Selector]
+        return LogicalData
 
 class ICD:
     class DataField:
