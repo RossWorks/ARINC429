@@ -72,7 +72,8 @@ class Frame:
             if field.Encoding == "BNR":
                 FieldDict[field.Name] = self._DecodeBNR(MSB      = field.MSB,
                                                         LSB      = field.LSB,
-                                                        DataType = field.Type)
+                                                        DataType = field.Type,
+                                                        Resolution = field.Resolution)
             elif field.Encoding == "ENUM":
                 FieldDict[field.Name] = self._DecodeENUM(MSB      = field.MSB,
                                                          LSB      = field.LSB,
@@ -82,7 +83,8 @@ class Frame:
     def _DecodeBNR(self,
                    MSB : int,
                    LSB : int,
-                   DataType : str) -> str:
+                   DataType : str,
+                   Resolution : float = 0.0) -> str:
         payload     : str = self._LogicalFrame["PAYLOAD"]
         RightBound  = 32 - MSB - 3
         LeftBound   = 32 - LSB - 3 + 1
@@ -93,8 +95,8 @@ class Frame:
             LogicalData = SignBitVal + OtherBits
         elif DataType == "UINT": #unsigned integer
             LogicalData = int(payload[RightBound:LeftBound],base = 2)
-        elif DataType == "FLOAT": #floating point signed number
-            pass
+        elif DataType == "FLOAT": #floating point signed number 
+            LogicalData = int(payload[RightBound:LeftBound],base = 2)*Resolution
         else:
             pass
         return str(LogicalData)
@@ -116,12 +118,13 @@ class Frame:
 
 class ICD:
     class DataField:
-        Name     : str
-        Encoding : str
-        MSB      : int
-        LSB      : int
-        SDI      : str
-        Type     : str
+        Name       : str
+        Encoding   : str
+        MSB        : int
+        LSB        : int
+        SDI        : str
+        Type       : str
+        Resolution : float
 
         def __init__(self,
                      Name,
@@ -129,13 +132,15 @@ class ICD:
                      MSB,
                      LSB,
                      SDI,
-                     Type) -> None:
-            self.Name     = Name
-            self.Encoding = Encoding
-            self.MSB      = MSB
-            self.LSB      = LSB
-            self.SDI      = SDI
-            self.Type     = Type
+                     Type,
+                     Resolution = 0) -> None:
+            self.Name       = Name
+            self.Encoding   = Encoding
+            self.MSB        = MSB
+            self.LSB        = LSB
+            self.SDI        = SDI
+            self.Type       = Type
+            self.Resolution = Resolution
 
     _ChannelList  = []
     _Content      = {}
@@ -166,12 +171,15 @@ class ICD:
             Key     = Channel + ';' + Label
             if Channel not in self._ChannelList:
                 self._ChannelList.append(Channel)
-            TmpField = self.DataField(Name     = TmpLine[0],
-                                      Encoding = TmpLine[3],
-                                      MSB      = int(TmpLine[4]),
-                                      LSB      = int(TmpLine[5]),
-                                      Type     = TmpLine[6],
-                                      SDI      = TmpLine[7])
+            if TmpLine[7] == "":
+                TmpLine[7] = 0.0
+            TmpField = self.DataField(Name       = TmpLine[0],
+                                      Encoding   = TmpLine[3],
+                                      MSB        = int(TmpLine[4]),
+                                      LSB        = int(TmpLine[5]),
+                                      Type       = TmpLine[6],
+                                      SDI        = TmpLine[8],
+                                      Resolution = float(TmpLine[7]))
             if Key not in self._Content:
                 self._Content[Key] = list()
             self._Content[Key].append(TmpField)
