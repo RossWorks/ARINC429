@@ -17,7 +17,7 @@ class Frame:
             if (bit != '0' and bit != '1'):
                 return 2
             if (bit == '1'):
-                oneCount +=1 
+                oneCount +=1
         if oneCount % 2 == 0:
             return 3
         return 0
@@ -95,8 +95,11 @@ class Frame:
             LogicalData = SignBitVal + OtherBits
         elif DataType == "UINT": #unsigned integer
             LogicalData = int(payload[RightBound:LeftBound],base = 2)
-        elif DataType == "FLOAT": #floating point signed number 
-            LogicalData = int(payload[RightBound:LeftBound],base = 2)*Resolution
+        elif DataType == "FLOAT": #floating point signed number
+            SignBitVal  = -int(payload[RightBound])*pow(2,(len(payload)-1))
+            OtherBits   = int(payload[RightBound+1:LeftBound],base = 2)
+            LogicalData = SignBitVal + OtherBits
+            LogicalData = LogicalData * Resolution
         else:
             pass
         return str(LogicalData)
@@ -194,7 +197,7 @@ class ICD:
             return True
         else:
             return False
-    
+
     def ExtractKey(self,
                    Key : str) -> list:
         return self._Content[Key]
